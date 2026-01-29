@@ -1,0 +1,46 @@
+# Arquivos de configuração do ambiente
+.env
+env
+.fastRequest
+
+# Arquivos e diretórios específicos do Docker
+docker-compose.yml
+
+# Arquivos de ajuda ou documentações (caso não queira versioná-los)
+HELP.md
+
+# Arquivos compilados e gerados
+target/
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# Maven Wrapper
+!.mvn/wrapper/maven-wrapper.jar
+
+# Arquivos e diretórios do Spring Tool Suite (STS)
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+# Arquivos de configuração do IntelliJ IDEA
+.idea
+*.iws
+*.iml
+*.ipr
+
+# Arquivos do NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# Arquivos de configuração do VS Code
+.vscode/
