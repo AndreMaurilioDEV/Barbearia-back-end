@@ -72,7 +72,7 @@ public class ProfissionalService {
     }
 
     @Transactional
-    public Profissional AtualizaProfissional(Long id, Profissional profissional) throws UsuarioNaoEncontrado {
+    public Profissional AtualizaProfissional(Long id, Profissional profissional) {
         Profissional profissionalfromDB = profissionalRepository.findById(id).orElseThrow(() -> new UsuarioNaoEncontrado("Barbeiro não encontrado"));
         profissionalfromDB.setNome(profissional.getNome());
         profissionalfromDB.setTelefone(profissional.getTelefone());
@@ -80,7 +80,7 @@ public class ProfissionalService {
     }
 
 
-    public void AtualizaStatusProfissional(Long id, Boolean ativo) throws UsuarioNaoEncontrado {
+    public void AtualizaStatusProfissional(Long id, Boolean ativo) {
         Profissional profissional = profissionalRepository.findById(id).orElseThrow(() -> new UsuarioNaoEncontrado("Barbeiro não encontrado"));
         profissional.setAtivo(ativo);
         profissionalRepository.save(profissional);
@@ -93,7 +93,7 @@ public class ProfissionalService {
         emailService.sendEmail(barbeiro.getUsername(), "Novo Cadastro", message);
     }
 
-    public Profissional AtualizarSenhaPadrao(String email, String newPassword, String currentPassword) throws UsuarioNaoEncontrado {
+    public Profissional AtualizarSenhaPadrao(String email, String newPassword, String currentPassword) {
         Profissional profissional = findByEmail(email);
         if (!new BCryptPasswordEncoder().matches(currentPassword, profissional.getPassword())) {
             throw new IllegalArgumentException("Senha atual não está correta.");

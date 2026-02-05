@@ -30,16 +30,16 @@ public class UsuarioService   {
     }
 
 
-    public Usuario findById(Long id) throws UsuarioNaoEncontrado {
+    public Usuario findById(Long id) {
         return usuarioRepository.findById(id).orElseThrow(() -> new UsuarioNaoEncontrado("Cliente não encontrado"));
     }
 
-    public Usuario findByEmail(String email) throws UsuarioNaoEncontrado {
+    public Usuario findByEmail(String email) {
         return usuarioRepository.findByEmail(email).orElseThrow(() -> new UsuarioNaoEncontrado("Cliente não encontrado"));
     }
 
     @Transactional
-    public Usuario createUsuario(UsuarioCreationDto usuarioCreationDto) throws UsuarioEmailException, UsuarioNomeException {
+    public Usuario createUsuario(UsuarioCreationDto usuarioCreationDto)  {
         if (usuarioRepository.findByEmail(usuarioCreationDto.email()).isPresent()) {
             throw new UsuarioEmailException("Cliente com este email ja existe");
         }
@@ -65,7 +65,7 @@ public class UsuarioService   {
     }
 
     @Transactional
-    public Usuario updateUsuario(UsuarioCreationDto usuarioCreationDto, Long id) throws UsuarioNaoEncontrado {
+    public Usuario updateUsuario(UsuarioCreationDto usuarioCreationDto, Long id) {
        Usuario usuarioFromDb =  usuarioRepository.findById(id).orElseThrow(() -> new UsuarioNaoEncontrado("Cliente não encontrado"));
         usuarioFromDb.setNome(usuarioCreationDto.nome());
         usuarioFromDb.setTelefone(usuarioCreationDto.telefone());

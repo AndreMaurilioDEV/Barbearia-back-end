@@ -9,6 +9,8 @@ import com.projeto.barbearia.entity.roles.TiposServicos;
 import com.projeto.barbearia.repository.AgendamentoRepository;
 import com.projeto.barbearia.repository.ServicoAgendadoRepository;
 import com.projeto.barbearia.repository.ServicoRepository;
+import com.projeto.barbearia.service.exceptions.ServicoExceptions.ServicoJaExiste;
+import com.projeto.barbearia.service.exceptions.ServicoExceptions.ServicoNaoEncontrado;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +33,7 @@ public class ServicoService {
     }
 
     public Servico findByName(TiposServicos tiposServicos) {
-        return servicoRepository.findByTiposServicos(tiposServicos).orElseThrow(() -> new RuntimeException("Servico não encontrado"));
+        return servicoRepository.findByTiposServicos(tiposServicos).orElseThrow(ServicoNaoEncontrado::new);
     }
 
     @Transactional
@@ -40,7 +42,7 @@ public class ServicoService {
                 .existsByTiposServicos(servicoCreationDto.tiposServicos());
 
         if (existe) {
-            throw new RuntimeException("Serviço já existe");
+            throw new ServicoJaExiste();
         }
 
         Servico novoServico = new Servico(

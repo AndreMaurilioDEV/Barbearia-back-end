@@ -93,7 +93,7 @@ public class AgendamentoService {
 
 
     @Transactional
-    public Agendamento createAgendamento(AgendamentoCreationDto agendamentoCreationDto) throws UsuarioNaoEncontrado, AgendamentoJaExiste, ServicoNaoEncontrado {
+    public Agendamento createAgendamento(AgendamentoCreationDto agendamentoCreationDto)  {
 
         boolean ocupado = agendamentoRepository.existsByDataAndHorarioAndBarbeiroId(
                 agendamentoCreationDto.data(),
@@ -131,7 +131,7 @@ public class AgendamentoService {
     }
 
 
-    public Agendamento cancelarAgendamento(Long id) throws AgendamentoNaoEncontrado {
+    public Agendamento cancelarAgendamento(Long id) {
         Agendamento agendamento = agendamentoRepository.findById(id).orElseThrow(AgendamentoNaoEncontrado::new);
         agendamento.setStatusAgendamento(StatusAgendamento.CANCELADO);
         return agendamentoRepository.save(agendamento);

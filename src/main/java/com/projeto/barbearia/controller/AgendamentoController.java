@@ -36,7 +36,7 @@ public class AgendamentoController {
     }
 
     @PostMapping
-    public ResponseEntity<AgendamentoDto> criarAgendamento(@RequestBody AgendamentoCreationDto agendamentoCreationDto) throws UsuarioNaoEncontrado, ServicoNaoEncontrado {
+    public ResponseEntity<AgendamentoDto> criarAgendamento(@RequestBody AgendamentoCreationDto agendamentoCreationDto) throws ServicoNaoEncontrado, UsuarioNaoEncontrado {
         Agendamento agendamento = agendamentoService.createAgendamento(agendamentoCreationDto);
         AgendamentoDto agendamentoDto = AgendamentoDto.fromEntity(agendamento);
         return ResponseEntity.ok(agendamentoDto);

@@ -24,7 +24,7 @@ public class ProfissionalDisponibilidadeService {
         this.profissionalService = profissionalService;
     }
 
-    public ProfissionalDisponibilidade createProfissionalDisponibilidade(Long barbeiroId, DisponibilidadeCreationDto disponibilidadeDto) throws UsuarioNaoEncontrado {
+    public ProfissionalDisponibilidade createProfissionalDisponibilidade(Long barbeiroId, DisponibilidadeCreationDto disponibilidadeDto) {
         Profissional profissional = profissionalService.findById(barbeiroId);
         if (profissional.getNome() == null) {
             throw new UsuarioNaoEncontrado("Barbeiro não encontrado");
@@ -37,11 +37,11 @@ public class ProfissionalDisponibilidadeService {
         return disponibilidadeRepository.save(profissionalDisponibilidade);
     }
 
-    public ProfissionalDisponibilidade findByDiaSemana(DiasSemana diaDaSemana) throws DisponibilidadeNaoEncontrada {
+    public ProfissionalDisponibilidade findByDiaSemana(DiasSemana diaDaSemana) {
         return disponibilidadeRepository.findByDiaDaSemana(diaDaSemana).orElseThrow(DisponibilidadeNaoEncontrada::new);
     }
 
-    public ProfissionalDisponibilidade findByProfissionalId(Long profissionalId) throws DisponibilidadeNaoEncontrada {
+    public ProfissionalDisponibilidade findByProfissionalId(Long profissionalId)  {
         return disponibilidadeRepository.findByProfissionalId(profissionalId).orElseThrow(DisponibilidadeNaoEncontrada::new);
     }
 }
