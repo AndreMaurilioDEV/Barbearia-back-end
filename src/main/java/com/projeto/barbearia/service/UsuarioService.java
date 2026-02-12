@@ -44,13 +44,6 @@ public class UsuarioService   {
             throw new UsuarioEmailException("Cliente com este email ja existe");
         }
 
-        if (usuarioCreationDto.nome() == null || usuarioCreationDto.nome().isEmpty()) {
-            throw new UsuarioNomeException("Nome não pode ser vazio");
-        }
-
-        if (usuarioCreationDto.email() == null || usuarioCreationDto.email().isEmpty()) {
-            throw new UsuarioEmailException("Email não pode ser vazio");
-        }
 
         String hashedPassword = new BCryptPasswordEncoder()
                 .encode(usuarioCreationDto.senha());

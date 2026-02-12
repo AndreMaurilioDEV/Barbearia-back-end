@@ -5,6 +5,7 @@ import com.projeto.barbearia.controller.Dto.TokenDto;
 import com.projeto.barbearia.security.Role;
 import com.projeto.barbearia.service.JwtService;
 import com.projeto.barbearia.service.exceptions.RoleNotFound;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,7 +27,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public TokenDto login(@RequestBody AuthDto authDto) throws RoleNotFound {
+    public TokenDto login(@Valid @RequestBody AuthDto authDto) throws RoleNotFound {
         UsernamePasswordAuthenticationToken usernamePassword = new UsernamePasswordAuthenticationToken(
                 authDto.email(), authDto.password());
         Authentication authentication = authenticationManager.authenticate(usernamePassword);

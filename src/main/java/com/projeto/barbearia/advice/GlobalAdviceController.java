@@ -5,6 +5,7 @@ import com.projeto.barbearia.service.exceptions.NotFoundException;
 import com.projeto.barbearia.service.exceptions.RoleNotFound;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -30,6 +31,13 @@ public class GlobalAdviceController {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ExceptionResponse> handleRunTimeException(RuntimeException ex, WebRequest webRequest) {
+        ExceptionResponse response =
+                new ExceptionResponse(LocalDateTime.now(),ex.getMessage(), webRequest.getDescription(false));
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ExceptionResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex, WebRequest webRequest) {
         ExceptionResponse response =
                 new ExceptionResponse(LocalDateTime.now(),ex.getMessage(), webRequest.getDescription(false));
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);

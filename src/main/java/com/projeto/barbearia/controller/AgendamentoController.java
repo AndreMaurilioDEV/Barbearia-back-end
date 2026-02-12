@@ -7,6 +7,7 @@ import com.projeto.barbearia.service.AgendamentoService;
 import com.projeto.barbearia.service.exceptions.AgendamentoExceptions.AgendamentoNaoEncontrado;
 import com.projeto.barbearia.service.exceptions.ServicoExceptions.ServicoNaoEncontrado;
 import com.projeto.barbearia.service.exceptions.UsuarioExceptions.UsuarioNaoEncontrado;
+import jakarta.validation.Valid;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -36,14 +37,14 @@ public class AgendamentoController {
     }
 
     @PostMapping
-    public ResponseEntity<AgendamentoDto> criarAgendamento(@RequestBody AgendamentoCreationDto agendamentoCreationDto) throws ServicoNaoEncontrado, UsuarioNaoEncontrado {
+    public ResponseEntity<AgendamentoDto> criarAgendamento(@Valid @RequestBody AgendamentoCreationDto agendamentoCreationDto) {
         Agendamento agendamento = agendamentoService.createAgendamento(agendamentoCreationDto);
         AgendamentoDto agendamentoDto = AgendamentoDto.fromEntity(agendamento);
         return ResponseEntity.ok(agendamentoDto);
     }
 
     @PutMapping("/{agendamentoId}/cancelar-agendamento")
-    public ResponseEntity<AgendamentoDto> cancelarAgendamento(@PathVariable Long agendamentoId) throws AgendamentoNaoEncontrado {
+    public ResponseEntity<AgendamentoDto> cancelarAgendamento(@PathVariable Long agendamentoId)  {
         Agendamento agendamentoCancelado = agendamentoService.cancelarAgendamento(agendamentoId);
         AgendamentoDto agendamentoDto = AgendamentoDto.fromEntity(agendamentoCancelado);
         return ResponseEntity.ok(agendamentoDto);

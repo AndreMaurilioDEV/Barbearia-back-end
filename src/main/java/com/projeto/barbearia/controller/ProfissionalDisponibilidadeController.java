@@ -6,6 +6,7 @@ import com.projeto.barbearia.entity.ProfissionalDisponibilidade;
 import com.projeto.barbearia.service.ProfissionalDisponibilidadeService;
 import com.projeto.barbearia.service.exceptions.DisponibilidadeExceptions.DisponibilidadeNaoEncontrada;
 import com.projeto.barbearia.service.exceptions.UsuarioExceptions.UsuarioNaoEncontrado;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,14 +21,14 @@ public class ProfissionalDisponibilidadeController {
     }
 
     @GetMapping("/{profissionalId}/disponibilidade")
-    public ResponseEntity<DisponibilidadeDto> listarDisponibilidadeProfissional(@RequestParam Long profissionalId) throws DisponibilidadeNaoEncontrada {
+    public ResponseEntity<DisponibilidadeDto> listarDisponibilidadeProfissional(@RequestParam Long profissionalId) {
         ProfissionalDisponibilidade profissionalDisponibilidade = profissionalDisponibilidadeService.findByProfissionalId(profissionalId);
         DisponibilidadeDto disponibilidadeDto = DisponibilidadeDto.fromEntity(profissionalDisponibilidade);
         return ResponseEntity.ok(disponibilidadeDto);
     }
 
     @PostMapping
-    public ResponseEntity<DisponibilidadeDto> criarDisponibilidadeProfissional(@RequestParam Long profissionalId, @RequestBody DisponibilidadeCreationDto disponibilidadeDto) throws UsuarioNaoEncontrado {
+    public ResponseEntity<DisponibilidadeDto> criarDisponibilidadeProfissional(@Valid @RequestParam Long profissionalId, @RequestBody DisponibilidadeCreationDto disponibilidadeDto) {
         ProfissionalDisponibilidade profissionalDisponibilidade = profissionalDisponibilidadeService.createProfissionalDisponibilidade(profissionalId, disponibilidadeDto);
         DisponibilidadeDto createdDto = DisponibilidadeDto.fromEntity(profissionalDisponibilidade);
         return ResponseEntity.ok(createdDto);

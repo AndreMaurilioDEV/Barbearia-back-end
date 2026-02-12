@@ -37,7 +37,7 @@ public class ProfissionalService {
 
 
     public Profissional findByEmail(String email) {
-        return profissionalRepository.findByEmail(email).orElse(null);
+        return profissionalRepository.findByEmail(email).orElseThrow(() -> new UsuarioNaoEncontrado("Profissional não encontrado"));
     }
 
     public Profissional findById(Long id) {
@@ -45,20 +45,17 @@ public class ProfissionalService {
     }
 
     @Transactional
-    public Void deleteProfissional(Long idBarbeiro) throws UsuarioNaoEncontrado {
-        profissionalRepository.deleteById(idBarbeiro);
+    public Void deleteProfissional(Long idProfissional) throws UsuarioNaoEncontrado {
+        profissionalRepository.deleteById(idProfissional);
         return null;
     }
 
     @Transactional
     public Profissional createProfissional(ProfissionalCreationDto profissionalCreationDto) throws UsuarioJaExiste, UsuarioNomeException {
         if (profissionalRepository.findByEmail(profissionalCreationDto.email()).isPresent()) {
-            throw new UsuarioJaExiste("Barbeiro com esse email já existe");
+            throw new UsuarioJaExiste("Profissional com esse email já existe");
         }
 
-        if (profissionalCreationDto.nome() == null || profissionalCreationDto.nome().isEmpty()) {
-            throw new UsuarioNomeException("Nome do barbeiro não pode ser vazio");
-        }
         String tempPassword = UUID.randomUUID().toString().substring(0,8);
         String hashedPassword = new BCryptPasswordEncoder()
                 .encode(tempPassword);

@@ -4,6 +4,7 @@ import com.projeto.barbearia.controller.Dto.ServicoCreationDto;
 import com.projeto.barbearia.controller.Dto.ServicoDto;
 import com.projeto.barbearia.entity.Servico;
 import com.projeto.barbearia.service.ServicoService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +32,7 @@ public class ServicosController {
     }
 
     @PostMapping
-    public ResponseEntity<ServicoDto> criarServico(@RequestBody ServicoCreationDto servicoCreationDto) {
+    public ResponseEntity<ServicoDto> criarServico(@Valid @RequestBody ServicoCreationDto servicoCreationDto) {
         Servico servico = servicoService.createServico(servicoCreationDto);
         ServicoDto servicoDto = ServicoDto.fromEntity(servico);
         return ResponseEntity.ok(servicoDto);

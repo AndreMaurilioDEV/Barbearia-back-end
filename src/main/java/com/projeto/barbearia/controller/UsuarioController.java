@@ -9,6 +9,7 @@ import com.projeto.barbearia.service.AgendamentoService;
 import com.projeto.barbearia.service.AuthService;
 
 import com.projeto.barbearia.service.UsuarioService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -54,14 +55,14 @@ public class UsuarioController {
     }
 
     @PostMapping
-    public ResponseEntity<UsuarioDto> criarUsuario(@RequestBody UsuarioCreationDto usuarioCreationDto) {
+    public ResponseEntity<UsuarioDto> criarUsuario(@Valid @RequestBody UsuarioCreationDto usuarioCreationDto) {
         Usuario usuario = usuarioService.createUsuario(usuarioCreationDto);
         UsuarioDto usuarioDto = UsuarioDto.fromEntity(usuario);
         return ResponseEntity.ok(usuarioDto);
     }
 
     @PutMapping("/{idUsuario}/atualizar")
-    public ResponseEntity<Void> atualizarUsuario(@PathVariable Long idUsuario, @RequestBody UsuarioCreationDto usuarioCreationDto) throws Exception {
+    public ResponseEntity<Void> atualizarUsuario(@PathVariable Long idUsuario, @RequestBody UsuarioCreationDto usuarioCreationDto) {
         usuarioService.updateUsuario(usuarioCreationDto, idUsuario);
         return ResponseEntity.noContent().build();
     }

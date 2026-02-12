@@ -12,6 +12,7 @@ import com.projeto.barbearia.service.AgendamentoService;
 
 import com.projeto.barbearia.service.ProfissionalService;
 import com.projeto.barbearia.service.exceptions.UsuarioExceptions.UsuarioNaoEncontrado;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -63,32 +64,32 @@ public class ProfissionalController {
     }
 
     @PostMapping
-    public ResponseEntity<ProfissionalDto> criarProfissional(@RequestBody ProfissionalCreationDto profissionalCreationDto) {
+    public ResponseEntity<ProfissionalDto> criarProfissional(@Valid @RequestBody ProfissionalCreationDto profissionalCreationDto) {
         Profissional profissional = profissionalService.createProfissional(profissionalCreationDto);
         ProfissionalDto profissionalDto = ProfissionalDto.fromEntity(profissional);
         return ResponseEntity.ok(profissionalDto);
     }
 
     @PostMapping
-    public ResponseEntity<Void> mudarSenhaPadrao(@RequestBody String email, String newPassword, String currentPassowrd) throws UsuarioNaoEncontrado {
+    public ResponseEntity<Void> mudarSenhaPadrao(@RequestBody String email, String newPassword, String currentPassowrd) {
         profissionalService.AtualizarSenhaPadrao(email, newPassword, currentPassowrd);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{profissionalId}/desativar")
-    public ResponseEntity<Void> desativarProfissional(@PathVariable Long profissionalId) throws UsuarioNaoEncontrado {
+    public ResponseEntity<Void> desativarProfissional(@PathVariable Long profissionalId) {
         profissionalService.AtualizaStatusProfissional(profissionalId, false);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{profissionalId}/ativar")
-    public ResponseEntity<Void> ativarProfissional(@PathVariable Long profissionalId) throws UsuarioNaoEncontrado {
+    public ResponseEntity<Void> ativarProfissional(@PathVariable Long profissionalId) {
         profissionalService.AtualizaStatusProfissional(profissionalId, true);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/deletar/{profissionalId}")
-    public ResponseEntity<Void> deletarProfissional(@RequestParam Long profissionalId) throws UsuarioNaoEncontrado {
+    public ResponseEntity<Void> deletarProfissional(@RequestParam Long profissionalId)  {
         profissionalService.deleteProfissional(profissionalId);
         return ResponseEntity.noContent().build();
     }
