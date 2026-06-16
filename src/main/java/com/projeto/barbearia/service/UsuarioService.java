@@ -65,4 +65,10 @@ public class UsuarioService   {
         return usuarioRepository.save(usuarioFromDb);
     }
 
+    public Usuario adicionarPontosFidelidade(Usuario usuario, int points) {
+        Usuario usuarioFromDb = usuarioRepository.findById(usuario.getId()).orElseThrow(() -> new UsuarioNaoEncontrado("Cliente não encontrado"));
+        usuarioFromDb.setFidelityPoints(usuarioFromDb.getFidelityPoints() + points);
+        return usuarioRepository.save(usuarioFromDb);
+    }
+
 }

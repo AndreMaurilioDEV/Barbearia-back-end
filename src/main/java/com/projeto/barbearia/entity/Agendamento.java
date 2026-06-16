@@ -39,6 +39,12 @@ public class Agendamento {
 
     private LocalTime horario;
 
+    private Boolean lembrete24hEnviado = false;
+
+    private Boolean lembrete1hEnviado  = false;
+
+    private Boolean pontosFidelidadeGerados = false;
+
     @Enumerated(EnumType.STRING)
     private StatusAgendamento statusAgendamento = StatusAgendamento.PENDENTE;
 
@@ -51,7 +57,6 @@ public class Agendamento {
         this.horario = horario;
         this.servicoAgendadoList = new ArrayList<>();
     }
-
 
     public Long getId() {
         return id;
@@ -105,8 +110,6 @@ public class Agendamento {
         this.data = data;
     }
 
-
-
     public StatusAgendamento getStatusAgendamento() {
         return statusAgendamento;
     }
@@ -121,5 +124,29 @@ public class Agendamento {
 
     public void setStatusAgendamento(StatusAgendamento statusAgendamento) {
         this.statusAgendamento = statusAgendamento;
+    }
+
+    public Boolean getLembrete24hEnviado() {
+        return lembrete24hEnviado;
+    }
+
+    public void setLembrete24hEnviado(Boolean lembrete24hEnviado) {
+        this.lembrete24hEnviado = lembrete24hEnviado;
+    }
+
+    public Boolean getLembrete1hEnviado() {
+        return lembrete1hEnviado;
+    }
+
+    public void setLembrete1hEnviado(Boolean lembrete1hEnviado) {
+        this.lembrete1hEnviado = lembrete1hEnviado;
+    }
+
+    public Boolean getPontosFidelidadeGerados() {
+        return pontosFidelidadeGerados;
+    }
+
+    public void setPontosFidelidadeGerados(Boolean pontosFidelidadeGerados) {
+        this.pontosFidelidadeGerados = pontosFidelidadeGerados;
     }
 }

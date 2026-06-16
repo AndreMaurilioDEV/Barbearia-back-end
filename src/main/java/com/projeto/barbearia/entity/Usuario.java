@@ -1,6 +1,7 @@
 package com.projeto.barbearia.entity;
 
 
+import com.projeto.barbearia.entity.roles.NivelFidelidade;
 import com.projeto.barbearia.security.Role;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -23,6 +24,8 @@ public class Usuario implements UserDetails {
     private String nome;
     private String telefone;
 
+    private LocalDate dataNascimento;
+
     @Column(unique = true)
     private String email;
 
@@ -34,6 +37,14 @@ public class Usuario implements UserDetails {
 
     @OneToMany(mappedBy = "usuario")
     private List<Agendamento> agendamentos;
+
+    private Integer fidelityPoints = 0;
+
+    private Integer totalPontosGanhos = 0;
+
+    private Integer totalPontosUsados = 0;
+
+    private NivelFidelidade nivelFidelidade;
 
     private Role role;
 
@@ -47,6 +58,7 @@ public class Usuario implements UserDetails {
         this.telefone = telefone;
         this.email = email;
         this.password = password;
+        this.nivelFidelidade = NivelFidelidade.BRONZE;
         this.role = Role.CLIENTE;
     }
 
@@ -81,6 +93,14 @@ public class Usuario implements UserDetails {
 
     public void setTelefone(String telefone) {
         this.telefone = telefone;
+    }
+
+    public LocalDate getDataNascimento() {
+        return dataNascimento;
+    }
+
+    public void setDataNascimento(LocalDate dataNascimento) {
+        this.dataNascimento = dataNascimento;
     }
 
     public String getEmail() {
@@ -160,5 +180,37 @@ public class Usuario implements UserDetails {
     @Override
     public boolean isEnabled() {
         return UserDetails.super.isEnabled();
+    }
+
+    public Integer getFidelityPoints() {
+        return fidelityPoints;
+    }
+
+    public void setFidelityPoints(Integer fidelityPoints) {
+        this.fidelityPoints = fidelityPoints;
+    }
+
+    public Integer getTotalPontosGanhos() {
+        return totalPontosGanhos;
+    }
+
+    public void setTotalPontosGanhos(Integer totalPontosGanhos) {
+        this.totalPontosGanhos = totalPontosGanhos;
+    }
+
+    public Integer getTotalPontosUsados() {
+        return totalPontosUsados;
+    }
+
+    public void setTotalPontosUsados(Integer totalPontosUsados) {
+        this.totalPontosUsados = totalPontosUsados;
+    }
+
+    public NivelFidelidade getNivelFidelidade() {
+        return nivelFidelidade;
+    }
+
+    public void setNivelFidelidade(NivelFidelidade nivelFidelidade) {
+        this.nivelFidelidade = nivelFidelidade;
     }
 }

@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @RestController
@@ -43,10 +45,34 @@ public class AgendamentoController {
         return ResponseEntity.ok(agendamentoDto);
     }
 
+    @GetMapping("/horarios-disponiveis")
+    public ResponseEntity<List<LocalTime>> listarHorariosDisponiveis(
+            @RequestParam Long profissionalId,
+            @RequestParam LocalDate data,
+            @RequestParam List<Long> servicosIds
+    ) {
+        List<LocalTime> horarios = agendamentoService.horariosDisponiveis(profissionalId, data, servicosIds);
+        return ResponseEntity.ok(horarios);
+    }
+
     @PutMapping("/{agendamentoId}/cancelar-agendamento")
     public ResponseEntity<AgendamentoDto> cancelarAgendamento(@PathVariable Long agendamentoId)  {
         Agendamento agendamentoCancelado = agendamentoService.cancelarAgendamento(agendamentoId);
         AgendamentoDto agendamentoDto = AgendamentoDto.fromEntity(agendamentoCancelado);
+        return ResponseEntity.ok(agendamentoDto);
+    }
+
+    @PatchMapping("/{agendamentoId}/iniciar")
+    public ResponseEntity<AgendamentoDto> iniciarAtendimento(@PathVariable Long agendamentoId) {
+        Agendamento agendamentoIniciado = agendamentoService.iniciarAtendimento(agendamentoId);
+        AgendamentoDto agendamentoDto = AgendamentoDto.fromEntity(agendamentoIniciado);
+        return ResponseEntity.ok(agendamentoDto);
+    }
+
+    @PatchMapping("/{agendamentoId}/concluir")
+    public ResponseEntity<AgendamentoDto> concluirAgendamento(@PathVariable Long agendamentoId) {
+        Agendamento agendamentoConcluido = agendamentoService.concluirAgendamento(agendamentoId);
+        AgendamentoDto agendamentoDto = AgendamentoDto.fromEntity(agendamentoConcluido);
         return ResponseEntity.ok(agendamentoDto);
     }
 

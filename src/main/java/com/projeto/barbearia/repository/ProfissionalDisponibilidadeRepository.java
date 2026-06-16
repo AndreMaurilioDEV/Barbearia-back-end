@@ -12,4 +12,5 @@ import java.util.Optional;
 public interface ProfissionalDisponibilidadeRepository extends JpaRepository<ProfissionalDisponibilidade, Long> {
     Optional<ProfissionalDisponibilidade> findByProfissionalId(Long profissionalId);
     Optional<ProfissionalDisponibilidade> findByDiaDaSemana(DiasSemana diaDaSemana);
+    Optional<ProfissionalDisponibilidade> findByProfissionalIdAndDiaDaSemana(Long profissionalId, DiasSemana diaDaSemana);
 }

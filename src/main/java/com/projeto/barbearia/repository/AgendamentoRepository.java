@@ -53,4 +53,11 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
             LocalTime horario,
             Long barbeiroId
     );
+
+    List<Agendamento> findByDataAndHorarioBetweenAndStatus(
+            LocalDate data,
+            LocalTime localTime,
+            LocalTime localTime1,
+            StatusAgendamento statusAgendamento
+    );
 }

@@ -3,37 +3,47 @@ package com.projeto.barbearia.service;
 import ch.qos.logback.core.net.server.Client;
 import com.projeto.barbearia.controller.Dto.AgendamentoCreationDto;
 import com.projeto.barbearia.entity.*;
+import com.projeto.barbearia.entity.roles.DiasSemana;
 import com.projeto.barbearia.entity.roles.StatusAgendamento;
 import com.projeto.barbearia.repository.AgendamentoRepository;
+import com.projeto.barbearia.repository.ProfissionalDisponibilidadeRepository;
 import com.projeto.barbearia.repository.ServicoAgendadoRepository;
 import com.projeto.barbearia.repository.ServicoRepository;
 import com.projeto.barbearia.service.exceptions.AgendamentoExceptions.AgendamentoJaExiste;
 import com.projeto.barbearia.service.exceptions.AgendamentoExceptions.AgendamentoNaoEncontrado;
-import com.projeto.barbearia.service.exceptions.ServicoExceptions.ServicoNaoEncontrado;
-import com.projeto.barbearia.service.exceptions.UsuarioExceptions.UsuarioNaoEncontrado;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class AgendamentoService {
+
+    private static final int INTERVALO_BLOCO_MINUTOS = 15;
+    private static final int MARGEM_TECNICA_MINUTOS = 10;
 
     private final AgendamentoRepository agendamentoRepository;
     private final ProfissionalService profissionalService;
     private final UsuarioService usuarioService;
     private final ServicoRepository servicoRepository;
     private final ServicoAgendadoRepository servicoAgendadoRepository;
+    private final ProfissionalDisponibilidadeRepository profissionalDisponibilidadeRepository;
+    private final FidelidadeService fidelidadeService;
 
     @Autowired
-    public AgendamentoService(AgendamentoRepository agendamentoRepository, ProfissionalService profissionalService, UsuarioService usuarioService, ServicoRepository servicoRepository, ServicoAgendadoRepository servicoAgendadoRepository) {
+    public AgendamentoService(AgendamentoRepository agendamentoRepository, ProfissionalService profissionalService, UsuarioService usuarioService, ServicoRepository servicoRepository, ServicoAgendadoRepository servicoAgendadoRepository, ProfissionalDisponibilidadeRepository profissionalDisponibilidadeRepository, FidelidadeService fidelidadeService) {
         this.agendamentoRepository = agendamentoRepository;
         this.profissionalService = profissionalService;
         this.usuarioService = usuarioService;
         this.servicoRepository = servicoRepository;
         this.servicoAgendadoRepository = servicoAgendadoRepository;
+        this.profissionalDisponibilidadeRepository = profissionalDisponibilidadeRepository;
+        this.fidelidadeService = fidelidadeService;
     }
 
     public List<Agendamento> findAll() {
@@ -95,13 +105,11 @@ public class AgendamentoService {
     @Transactional
     public Agendamento createAgendamento(AgendamentoCreationDto agendamentoCreationDto)  {
 
-        boolean ocupado = agendamentoRepository.existsByDataAndHorarioAndBarbeiroId(
+        if (!horariosDisponiveis(
+                agendamentoCreationDto.barbeiroId(),
                 agendamentoCreationDto.data(),
-                agendamentoCreationDto.horario(),
-                agendamentoCreationDto.barbeiroId()
-        );
-
-        if (ocupado) {
+                agendamentoCreationDto.servicosIds()
+        ).contains(agendamentoCreationDto.horario())) {
             throw new AgendamentoJaExiste();
         }
 
@@ -130,11 +138,106 @@ public class AgendamentoService {
         return agendamento;
     }
 
+    public List<LocalTime> horariosDisponiveis(Long profissionalId, LocalDate data, List<Long> servicosIds) {
+        List<Servico> servicos = servicoRepository.findAllById(servicosIds);
+        int duracaoTotal = calcularDuracaoTotal(servicos);
+
+        ProfissionalDisponibilidade disponibilidade = profissionalDisponibilidadeRepository
+                .findByProfissionalIdAndDiaDaSemana(profissionalId, converterDiaSemana(data.getDayOfWeek()))
+                .orElseThrow(() -> new RuntimeException("Profissional não possui disponibilidade cadastrada para essa data"));
+
+        LocalTime inicio = disponibilidade.getHora_inicio();
+        LocalTime fim = disponibilidade.getHora_fim();
+        List<Agendamento> agendamentosDoDia = agendamentoRepository.findByProfissionalIdAndData(profissionalId, data);
+        List<LocalTime> horarios = new ArrayList<>();
+
+        for (LocalTime horario = inicio; !horario.plusMinutes(duracaoTotal).isAfter(fim); horario = horario.plusMinutes(INTERVALO_BLOCO_MINUTOS)) {
+            LocalTime inicioHorario = horario;
+            LocalTime fimHorario = inicioHorario.plusMinutes(duracaoTotal);
+
+            if (agendamentosDoDia.stream().noneMatch(agendamento -> conflita(inicioHorario, fimHorario, agendamento))) {
+                horarios.add(inicioHorario);
+            }
+        }
+
+        return horarios;
+    }
+
+    private int calcularDuracaoTotal(List<Servico> servicos) {
+        int duracaoServicos = servicos.stream()
+                .map(Servico::getDuracaoMinutos)
+                .filter(duracao -> duracao != null && duracao > 0)
+                .mapToInt(Integer::intValue)
+                .sum();
+
+        return duracaoServicos + MARGEM_TECNICA_MINUTOS;
+    }
+
+    private boolean conflita(LocalTime inicioNovo, LocalTime fimNovo, Agendamento agendamentoExistente) {
+        if (agendamentoExistente.getStatusAgendamento() == StatusAgendamento.CANCELADO) {
+            return false;
+        }
+
+        LocalTime inicioExistente = agendamentoExistente.getHorario();
+        LocalTime fimExistente = inicioExistente.plusMinutes(calcularDuracaoAgendamentoExistente(agendamentoExistente));
+
+        return inicioNovo.isBefore(fimExistente) && fimNovo.isAfter(inicioExistente);
+    }
+
+    private int calcularDuracaoAgendamentoExistente(Agendamento agendamento) {
+        int duracao = agendamento.getServicoAgendadoList().stream()
+                .map(ServicoAgendado::getServico)
+                .map(Servico::getDuracaoMinutos)
+                .filter(duracaoMinutos -> duracaoMinutos != null && duracaoMinutos > 0)
+                .mapToInt(Integer::intValue)
+                .sum();
+
+        return duracao + MARGEM_TECNICA_MINUTOS;
+    }
+
+    private DiasSemana converterDiaSemana(DayOfWeek dayOfWeek) {
+        return switch (dayOfWeek) {
+            case MONDAY -> DiasSemana.SEGUNDA;
+            case TUESDAY -> DiasSemana.TERCA;
+            case WEDNESDAY -> DiasSemana.QUARTA;
+            case THURSDAY -> DiasSemana.QUINTA;
+            case FRIDAY -> DiasSemana.SEXTA;
+            case SATURDAY -> DiasSemana.SABADO;
+            case SUNDAY -> DiasSemana.DOMINGO;
+        };
+    }
+
 
     public Agendamento cancelarAgendamento(Long id) {
         Agendamento agendamento = agendamentoRepository.findById(id).orElseThrow(AgendamentoNaoEncontrado::new);
         agendamento.setStatusAgendamento(StatusAgendamento.CANCELADO);
         return agendamentoRepository.save(agendamento);
+    }
+
+    @Transactional
+    public Agendamento iniciarAtendimento(Long id) {
+        Agendamento agendamento = agendamentoRepository.findById(id).orElseThrow(AgendamentoNaoEncontrado::new);
+
+        if (agendamento.getStatusAgendamento() != StatusAgendamento.CONFIRMADO) {
+            throw new RuntimeException("Apenas agendamentos confirmados podem ser iniciados.");
+        }
+
+        agendamento.setStatusAgendamento(StatusAgendamento.EM_ATENDIMENTO);
+        return agendamentoRepository.save(agendamento);
+    }
+
+    @Transactional
+    public Agendamento concluirAgendamento(Long id) {
+        Agendamento agendamento = agendamentoRepository.findById(id).orElseThrow(AgendamentoNaoEncontrado::new);
+
+        if (agendamento.getStatusAgendamento() != StatusAgendamento.EM_ATENDIMENTO) {
+            throw new RuntimeException("Apenas agendamentos em atendimento podem ser concluídos.");
+        }
+
+        agendamento.setStatusAgendamento(StatusAgendamento.CONCLUIDO);
+        Agendamento agendamentoSalvo = agendamentoRepository.save(agendamento);
+        fidelidadeService.gerarPontosPorAgendamentoConcluido(id);
+        return agendamentoSalvo;
     }
 
 }
