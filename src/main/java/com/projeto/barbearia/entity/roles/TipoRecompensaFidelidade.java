@@ -5,7 +5,7 @@ public enum TipoRecompensaFidelidade {
         DESCONTO_PERCENTUAL("Desconto em percentual"),
         SERVICO_GRATIS("Serviço gratuito"),
         UPGRADE_SERVICO("Upgrade de serviço"),
-        BRINDE("Brinde ou presente"),
+        BRINDE("Brinde ou presente");
 
         private final String descricao;
 

@@ -1,6 +1,7 @@
 package com.projeto.barbearia.service;
 import com.projeto.barbearia.entity.Agendamento;
 import com.projeto.barbearia.entity.MovimentacaoFidelidade;
+import com.projeto.barbearia.entity.roles.OrigemEntrada;
 import com.projeto.barbearia.entity.roles.StatusAgendamento;
 import com.projeto.barbearia.repository.AgendamentoRepository;
 import com.projeto.barbearia.repository.MovimentacaoFidelidadeRepository;
@@ -25,20 +26,35 @@ public class PagamentoService {
         this.movimentacaoFidelidadeRepository = movimentacaoFidelidadeRepository;
     }
 
+    @Transactional
     public Agendamento formaPagamentoPresencial(Long agendamentoId) {
         Agendamento agendamento = agendamentoRepository.findById(agendamentoId).orElseThrow(AgendamentoNaoEncontrado::new);
-        agendamento.setStatusAgendamento(StatusAgendamento.CONFIRMADO);
+        if (agendamento.getStatusAgendamento() != StatusAgendamento.PENDENTE) {
+            throw new RuntimeException("Pagamento já confirmado ou agendamento não está pendente");
+        }
+
+        definirStatusAgendamento(agendamento);
         return agendamentoRepository.save(agendamento);
     }
 
     @Transactional
     public Agendamento confirmarPagamentoOnline(Long agendamentoId) {
-        Agendamento agendamento = agendamentoRepository.findById(agendamentoId).orElseThrow(AgendamentoNaoEncontrado::new);
+        Agendamento agendamento = agendamentoRepository.findById(agendamentoId)
+                .orElseThrow(AgendamentoNaoEncontrado::new);
+
         if (agendamento.getStatusAgendamento() != StatusAgendamento.PENDENTE) {
             throw new RuntimeException("Pagamento já confirmado ou agendamento não está pendente");
         }
-        agendamento.setStatusAgendamento(StatusAgendamento.CONFIRMADO);
+        definirStatusAgendamento(agendamento);
         return agendamentoRepository.save(agendamento);
+    }
+
+    public StatusAgendamento definirStatusAgendamento(Agendamento agendamento) {
+        if (agendamento.getOrigemEntrada() == OrigemEntrada.AGENDAMENTO) {
+            return StatusAgendamento.CONFIRMADO;
+        } else {
+            return StatusAgendamento.NA_FILA;
+        }
     }
 
 }

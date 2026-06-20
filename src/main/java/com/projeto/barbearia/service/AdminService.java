@@ -33,7 +33,7 @@ public class AdminService {
 
     @Transactional
     public void createAdmin() {
-        if (usuarioRepository.findByUsername(adminEmail).isEmpty()) {
+        if (usuarioRepository.findByEmail(adminEmail).isEmpty()) {
             Usuario usuario = new Usuario();
             usuario.setNome(adminName);
             usuario.setEmail(adminEmail);

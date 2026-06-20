@@ -1,6 +1,5 @@
 package com.projeto.barbearia.security;
 
-import com.projeto.barbearia.service.ClienteService;
 import com.projeto.barbearia.service.JwtService;
 import com.projeto.barbearia.service.UsuariosService;
 import jakarta.servlet.FilterChain;

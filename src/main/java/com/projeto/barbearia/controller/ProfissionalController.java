@@ -4,7 +4,6 @@ import com.projeto.barbearia.controller.Dto.AgendamentoDto;
 
 import com.projeto.barbearia.controller.Dto.ProfissionalCreationDto;
 import com.projeto.barbearia.controller.Dto.ProfissionalDto;
-import com.projeto.barbearia.entity.Agendamento;
 
 import com.projeto.barbearia.entity.Profissional;
 import com.projeto.barbearia.entity.roles.StatusAgendamento;
@@ -25,8 +24,8 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class ProfissionalController {
 
-    private final AgendamentoService agendamentoService;
-    private final ProfissionalService profissionalService;
+    private final AgendamentoService  agendamentoService;
+    private final ProfissionalService  profissionalService;
 
     @Autowired
     public ProfissionalController(AgendamentoService agendamentoService, ProfissionalService profissionalService) {
@@ -43,8 +42,8 @@ public class ProfissionalController {
         return ResponseEntity.ok(profissionalDtos);
     }
 
-    @GetMapping
-    public ResponseEntity<ProfissionalDto> listarProfissionalPorId(@RequestParam Long profissionalId) throws UsuarioNaoEncontrado {
+    @GetMapping("/{profissionalId}")
+    public ResponseEntity<ProfissionalDto> listarProfissionalPorId(@PathVariable Long profissionalId) throws UsuarioNaoEncontrado {
         Profissional profissional = profissionalService.findById(profissionalId);
         ProfissionalDto profissionalDto = ProfissionalDto.fromEntity(profissional);
         return ResponseEntity.ok(profissionalDto);
@@ -70,7 +69,7 @@ public class ProfissionalController {
         return ResponseEntity.ok(profissionalDto);
     }
 
-    @PostMapping
+    @PostMapping("/mudar-senha-padrao")
     public ResponseEntity<Void> mudarSenhaPadrao(@RequestBody String email, String newPassword, String currentPassowrd) {
         profissionalService.AtualizarSenhaPadrao(email, newPassword, currentPassowrd);
         return ResponseEntity.noContent().build();

@@ -21,7 +21,7 @@ public class ProfissionalDisponibilidadeController {
     }
 
     @GetMapping("/{profissionalId}/disponibilidade")
-    public ResponseEntity<DisponibilidadeDto> listarDisponibilidadeProfissional(@RequestParam Long profissionalId) {
+    public ResponseEntity<DisponibilidadeDto> listarDisponibilidadeProfissional(@PathVariable Long profissionalId) {
         ProfissionalDisponibilidade profissionalDisponibilidade = profissionalDisponibilidadeService.findByProfissionalId(profissionalId);
         DisponibilidadeDto disponibilidadeDto = DisponibilidadeDto.fromEntity(profissionalDisponibilidade);
         return ResponseEntity.ok(disponibilidadeDto);

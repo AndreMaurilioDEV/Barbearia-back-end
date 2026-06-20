@@ -4,6 +4,7 @@ import ch.qos.logback.core.net.server.Client;
 import com.projeto.barbearia.controller.Dto.AgendamentoCreationDto;
 import com.projeto.barbearia.entity.*;
 import com.projeto.barbearia.entity.roles.DiasSemana;
+import com.projeto.barbearia.entity.roles.OrigemEntrada;
 import com.projeto.barbearia.entity.roles.StatusAgendamento;
 import com.projeto.barbearia.repository.AgendamentoRepository;
 import com.projeto.barbearia.repository.ProfissionalDisponibilidadeRepository;
@@ -13,6 +14,7 @@ import com.projeto.barbearia.service.exceptions.AgendamentoExceptions.Agendament
 import com.projeto.barbearia.service.exceptions.AgendamentoExceptions.AgendamentoNaoEncontrado;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
@@ -20,6 +22,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AgendamentoService {
@@ -83,22 +86,22 @@ public class AgendamentoService {
     ) {
         if (data != null && status != null) {
             return agendamentoRepository
-                    .findByClienteIdAndDataAndStatusAgendamento(
+                    .findByUsuarioIdAndDataAndStatusAgendamento(
                             clienteId, data, status
                     );
         }
 
         if (data != null) {
             return agendamentoRepository
-                    .findByClienteIdAndData(clienteId, data);
+                    .findByUsuarioIdAndData(clienteId, data);
         }
 
         if (status != null) {
             return agendamentoRepository
-                    .findByClienteIdAndStatusAgendamento(clienteId, status);
+                    .findByUsuarioIdAndStatusAgendamento(clienteId, status);
         }
 
-        return agendamentoRepository.findByClienteId(clienteId);
+        return agendamentoRepository.findByUsuarioId(clienteId);
     }
 
 
@@ -127,6 +130,7 @@ public class AgendamentoService {
         agendamento.setProfissional(profissional);
         agendamento.setData(agendamentoCreationDto.data());
         agendamento.setHorario(agendamentoCreationDto.horario());
+        agendamento.setOrigemEntrada(OrigemEntrada.AGENDAMENTO);
         agendamento.setValorTotal(total);
 
         List<ServicoAgendado> servicosAgendados = servicos.stream()
@@ -239,6 +243,76 @@ public class AgendamentoService {
         fidelidadeService.gerarPontosPorAgendamentoConcluido(id);
         return agendamentoSalvo;
     }
+
+    @Transactional
+    public Agendamento adicionarClienteAFila(AgendamentoCreationDto agendamentoCreationDto) {
+
+        Usuario cliente = usuarioService.findById(agendamentoCreationDto.clienteId());
+        Profissional profissional = profissionalService.findById(agendamentoCreationDto.barbeiroId());
+
+        List<Servico> servicos = servicoRepository.findAllById(agendamentoCreationDto.servicosIds());
+
+        double total = servicos.stream()
+                .mapToDouble(Servico::getPreco)
+                .sum();
+
+        LocalDate data = agendamentoCreationDto.data() != null ? agendamentoCreationDto.data() : LocalDate.now();
+
+        List<Agendamento> filaAtual = agendamentoRepository.findByProfissionalIdAndDataAndStatusAgendamentoOrderByPosicaoFilaAsc(
+                profissional.getId(),
+                data,
+                StatusAgendamento.NA_FILA
+        );
+
+        LocalTime horarioPrevisao = calcularPrevisao(profissional.getId(), data, filaAtual);
+
+        Integer posicaoFila = filaAtual.size() + 1;
+
+        Agendamento agendamento = new Agendamento();
+        agendamento.setUsuario(cliente);
+        agendamento.setProfissional(profissional);
+        agendamento.setData(agendamentoCreationDto.data());
+        agendamento.setOrigemEntrada(OrigemEntrada.FILA_PRESENCIAL);
+        agendamento.setPosicaoFila(posicaoFila);
+        agendamento.setHorarioPrevisto(horarioPrevisao);
+        List<ServicoAgendado> servicosAgendados = servicos.stream()
+                .map(servico -> new ServicoAgendado(agendamento, servico))
+                .toList();
+
+        agendamento.setServicoAgendadoList(servicosAgendados);
+        agendamento.setValorTotal(total);
+        return agendamentoRepository.save(agendamento);
+    }
+
+    private LocalTime calcularPrevisao(Long profissionalId, LocalDate data, List<Agendamento> filaAtual) {
+        LocalTime previsao = LocalTime.now();
+        Optional<Agendamento> atendimentoEmAndamento = agendamentoRepository.findFirstByProfissionalIdAndDataAndStatusAgendamento(
+                profissionalId, data, StatusAgendamento.EM_ATENDIMENTO);
+
+        if(atendimentoEmAndamento.isPresent()) {
+            previsao = previsao.plusMinutes(calcularDuracaoAgendamentoExistente(atendimentoEmAndamento.get()));
+        }
+
+        for (Agendamento agendamentoFila : filaAtual) {
+            previsao = previsao.plusMinutes(calcularDuracaoAgendamentoExistente(agendamentoFila));
+        }
+
+        return previsao;
+
+    }
+
+    public Integer tamanhoFila(Long profissionalId, LocalDate localDate) {
+        return agendamentoRepository.findByProfissionalIdAndDataAndStatusAgendamentoOrderByPosicaoFilaAsc(
+                profissionalId,
+                localDate,
+                StatusAgendamento.NA_FILA
+        ).size();
+
+    }
+
+
+
+
 
 }
 

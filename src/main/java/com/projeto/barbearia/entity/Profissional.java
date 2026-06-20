@@ -38,7 +38,7 @@ public class Profissional implements UserDetails {
 
     private Boolean ativo = true;
 
-    @OneToMany(mappedBy = "barbeiro")
+    @OneToMany(mappedBy = "profissional")
     private List<Agendamento> agendamentos;
 
     @OneToMany(mappedBy = "profissional")

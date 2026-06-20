@@ -4,6 +4,7 @@ public enum StatusAgendamento {
     PENDENTE("Pendente"),
     CONFIRMADO("Confirmado"),
     EM_ATENDIMENTO("Em atendimento"),
+    NA_FILA("Na fila"),
     CANCELADO("Cancelado"),
     CONCLUIDO("Concluído");
 

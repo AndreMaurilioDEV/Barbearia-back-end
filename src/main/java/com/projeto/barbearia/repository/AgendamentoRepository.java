@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> {
@@ -28,36 +29,50 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
             StatusAgendamento status
     );
 
-    List<Agendamento> findByClienteId(Long clienteId);
+    List<Agendamento> findByUsuarioId(Long usuarioId);
 
     List<Agendamento> findByProfissionalId(Long barbeiroId);
 
-    List<Agendamento> findByClienteIdAndData(
-            Long clienteId,
+    List<Agendamento> findByUsuarioIdAndData(
+            Long usuarioId,
             LocalDate data
     );
 
-    List<Agendamento> findByClienteIdAndStatusAgendamento(
-            Long clienteId,
+    List<Agendamento> findByUsuarioIdAndStatusAgendamento(
+            Long usuarioId,
             StatusAgendamento status
     );
 
-    List<Agendamento> findByClienteIdAndDataAndStatusAgendamento(
-            Long clienteId,
+    List<Agendamento> findByUsuarioIdAndDataAndStatusAgendamento(
+            Long usuarioId,
             LocalDate data,
             StatusAgendamento status
     );
 
-    Boolean existsByDataAndHorarioAndBarbeiroId(
+    Boolean existsByDataAndHorarioAndProfissionalId(
             LocalDate data,
             LocalTime horario,
-            Long barbeiroId
+            Long profissionalId
     );
 
-    List<Agendamento> findByDataAndHorarioBetweenAndStatus(
+    List<Agendamento> findByDataAndHorarioBetweenAndStatusAgendamento(
             LocalDate data,
             LocalTime localTime,
             LocalTime localTime1,
             StatusAgendamento statusAgendamento
     );
+
+    List<Agendamento> findByProfissionalIdAndDataAndStatusAgendamentoOrderByPosicaoFilaAsc(
+            Long profissionalId,
+            LocalDate data,
+            StatusAgendamento statusAgendamento
+    );
+
+    Optional<Agendamento> findFirstByProfissionalIdAndDataAndStatusAgendamento(
+            Long profissionalId,
+            LocalDate data,
+            StatusAgendamento statusAgendamento
+    );
+
+
 }

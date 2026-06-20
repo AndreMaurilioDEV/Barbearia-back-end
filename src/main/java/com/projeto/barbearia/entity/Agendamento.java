@@ -1,6 +1,7 @@
 package com.projeto.barbearia.entity;
 
 
+import com.projeto.barbearia.entity.roles.OrigemEntrada;
 import com.projeto.barbearia.entity.roles.StatusAgendamento;
 import jakarta.persistence.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -37,7 +38,11 @@ public class Agendamento {
 
     private Double valorTotal;
 
+    private LocalTime horarioPrevisto;
+
     private LocalTime horario;
+
+    private OrigemEntrada origemEntrada;
 
     private Boolean lembrete24hEnviado = false;
 
@@ -45,16 +50,19 @@ public class Agendamento {
 
     private Boolean pontosFidelidadeGerados = false;
 
+    private Integer posicaoFila;
+
     @Enumerated(EnumType.STRING)
     private StatusAgendamento statusAgendamento = StatusAgendamento.PENDENTE;
 
     public Agendamento () {}
 
-    public Agendamento(Usuario usuario, Profissional profissional, LocalDate data, LocalTime horario) {
+    public Agendamento(Usuario usuario, Profissional profissional, LocalDate data, LocalTime horario, OrigemEntrada origemEntrada) {
         this.usuario = usuario;
         this.profissional = profissional;
         this.data = data;
         this.horario = horario;
+        this.origemEntrada = origemEntrada;
         this.servicoAgendadoList = new ArrayList<>();
     }
 
@@ -148,5 +156,21 @@ public class Agendamento {
 
     public void setPontosFidelidadeGerados(Boolean pontosFidelidadeGerados) {
         this.pontosFidelidadeGerados = pontosFidelidadeGerados;
+    }
+
+    public OrigemEntrada getOrigemEntrada() {
+        return origemEntrada;
+    }
+
+    public void setOrigemEntrada(OrigemEntrada origemEntrada) {
+        this.origemEntrada = origemEntrada;
+    }
+
+    public void setPosicaoFila(Integer posicaoFila) {
+        this.posicaoFila = posicaoFila;
+    }
+
+    public void setHorarioPrevisto(LocalTime horarioPrevisto) {
+        this.horarioPrevisto = horarioPrevisto;
     }
 }

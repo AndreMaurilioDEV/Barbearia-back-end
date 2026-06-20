@@ -39,7 +39,7 @@ public class LembreteService {
         LocalTime horario = alvo.toLocalTime();
 
         List<Agendamento> agendamentos = agendamentoRepository
-                .findByDataAndHorarioBetweenAndStatus(
+                .findByDataAndHorarioBetweenAndStatusAgendamento(
                         data,
                         horario.minusMinutes(2),
                         horario.plusMinutes(2),

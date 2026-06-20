@@ -3,6 +3,7 @@ package com.projeto.barbearia.controller.Dto;
 import com.projeto.barbearia.entity.Agendamento;
 import com.projeto.barbearia.entity.Profissional;
 import com.projeto.barbearia.entity.Usuario;
+import com.projeto.barbearia.entity.roles.OrigemEntrada;
 import com.projeto.barbearia.entity.roles.StatusAgendamento;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotEmpty;
@@ -28,10 +29,13 @@ public record AgendamentoCreationDto(
         LocalTime horario,
 
         @NotEmpty(message = "Deve conter ao menos um serviço")
-        List<@NotNull Long> servicosIds
+        List<@NotNull Long> servicosIds,
+
+        @NotNull (message = "Origem de entrada é obrigatória")
+        OrigemEntrada origemEntrada
 
 ) {
     public Agendamento toEntity(Usuario usuario, Profissional profissional) {
-        return new Agendamento(usuario, profissional, data, horario);
+        return new Agendamento(usuario, profissional, data, horario, origemEntrada);
     }
 }
